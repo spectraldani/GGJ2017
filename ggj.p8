@@ -17,7 +17,7 @@ player.sprite = 1
 sndc = {
 	accum_dt = 0,
 	update_called = false,
-	pattern = {{1,20},{2,30},{3,20}},
+	pattern = {{1,20},{2,20},{1,20},{3,10},{1,10},{4,10}},
 	i = 0,
 	j = 1,
 	curr_pattern = function(this)
@@ -31,7 +31,42 @@ sndc = {
 			j = (j%#this.pattern)+1
 		end
 		return this.pattern[j][1]
-	end
+	end,
+	past_pattern = function(this,di)
+		local i = this.i-di
+		local j = this.j
+		while i < 0 do
+			i += this.pattern[j][2]
+			j = ((j-2)%#this.pattern)+1
+		end
+		return this.pattern[j][1]
+	end,
+	-- check if the received pattern happened in the past
+	past_pattern_ocurred = function(this,di,patt)
+		local i = this.i-di
+		local j = this.j
+		while i < 0 do
+			i += this.pattern[j][2]
+			j = ((j-2)%#this.pattern)+1
+			if this.pattern[j][1] == patt then
+				return true
+			end
+		end
+		return false
+	end,
+	-- check if the received pattern will happen in the future
+	future_pattern_ocurr = function(this,di,patt)
+		local i = this.i+di
+		local j = this.j
+		while this.pattern[j][2] <= i do
+			i -= this.pattern[j][2]
+			j = (j%#this.pattern)+1
+			if this.pattern[j][1] == patt then
+				return true
+			end
+		end
+		return false
+	end,
 }
 correct_input = false
 a2b = {"_","‹","‘","”","ƒ"}
@@ -148,12 +183,19 @@ function _draw()
 	end
 	if correct_input then
 		print("o",0,0)
+	elseif sndc:future_pattern_ocurr(5,player.action) and player.action~=1 then
+		print("Too soon",0,0)
+	elseif sndc:past_pattern_ocurred(5,player.action) and player.action~=1 then
+		print("Too late",0,0)
 	else
 		print("x",0,0)
 	end
 	for i=1,10,1 do
 		print(a2b[sndc:future_pattern(i-1)],(i-1)*5,8)
 	end
+	--for i=1,10,1 do
+	--	print(a2b[sndc:past_pattern(i-1)],(i-1)*5,8*2)
+	--end
 	spr(player.sprite, 64, 64)
 	-- fans drawing
 	--for col in all(cols) do
