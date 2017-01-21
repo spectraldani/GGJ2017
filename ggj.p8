@@ -14,23 +14,35 @@ player.action = 1
 player.sprite = 1
 
 -- sound timer control
-accum_dt = 0
-update_called = false
+snd_control = {
+	accum_dt = 0,
+	update_called = false,
+	pattern = {{1,50},{2,1}},
+	i = 0,
+	j = 1
+}
 correct_input = false
+a2b = {"_","‹","‘","”","ƒ"}
+dgood = 0
 
 function _init()
 	init_timers()
 	add_timer(
 		"sound",
-		30,
+		60,
 		function(dt,elapsed,length,timer)
-			accum_dt += dt
-			if accum_dt >= 0.200 then
-				accum_dt = 0
-				update_called = true
+			snd_control.accum_dt += dt
+			if snd_control.accum_dt >= 0.1 then
+				snd_control.accum_dt = 0
+				snd_control.update_called = true
+				snd_control.i += 1
+				if snd_control.pattern[snd_control.j][2] <= snd_control.i then
+					snd_control.i = 0
+					snd_control.j = (snd_control.j%#snd_control.pattern)+1
+				end
 				sfx(0)
 			else
-				update_called = false
+				snd_control.update_called = false
 			end
 		end,
 		function()
@@ -58,12 +70,12 @@ function _update()
 		input = true
 	end
 
-	if input then 
+	if input then
 		player.sprite = player.action
 		-- starts timer for returning to rest position
 		add_timer(
 			"rest",
-			0.2,
+			0.05,
 			nil,
 			function()
 				player.action = 1
@@ -72,8 +84,8 @@ function _update()
 		)
 	end
 
-	if input and update_called then
-		correct_input = true	
+	if snd_control.update_called and snd_control.pattern[snd_control.j][1] ~= 1then
+		correct_input = (player.action == snd_control.pattern[snd_control.j][1])
 	end
 
 	update_timers()
@@ -81,10 +93,19 @@ end
 
 function _draw()
 	cls()
-	if correct_input then
-		print(":D")
-		correct_input = false
+	if snd_control.update_called then
+		print(".",0,8*2)
 	end
+	if correct_input then
+		print("O",0,0)
+	--else
+	--	print("",0,0)
+	end
+	print(snd_control.i..","..a2b[snd_control.pattern[snd_control.j][1]]..","..a2b[snd_control.pattern[(snd_control.j%#snd_control.pattern)+1][1]],0,8)
+	--print(dgood,0,8*3)
+	--for i=1,10,1 do
+	--	print(a2b[snd_control.pattern[i]],(i-1)*5,8)
+	--end
 	spr(player.sprite, 64, 64)
 end
 
