@@ -14,22 +14,23 @@ player.action = 1
 player.sprite = 1
 
 -- sound timer control
-snd_control = {
+sndc = {
 	accum_dt = 0,
 	update_called = false,
-	pattern = {{1,20*6},{2,20*6},{3,20*6}},
+	pattern = {{1,20},{2,30},{3,20}},
 	i = 0,
 	j = 1,
 	curr_pattern = function(this)
 		return this.pattern[this.j][1]
 	end,
-	offset_pattern = function(this,di)
-		local i = this.i+di;
-		if this.pattern[this.j][2] <= i then
-			i -= this.pattern[this.j][2]
+	future_pattern = function(this,di)
+		local i = this.i+di
+		local j = this.j
+		while this.pattern[j][2] <= i do
+			i -= this.pattern[j][2]
 			j = (j%#this.pattern)+1
 		end
-		return nil
+		return this.pattern[j][1]
 	end
 }
 correct_input = false
@@ -57,14 +58,14 @@ function _init()
 		"sound",
 		60,
 		function(dt,elapsed,length,timer)
-			snd_control.accum_dt += dt
-			if snd_control.accum_dt >= 0.1 then
-				snd_control.accum_dt = 0
-				snd_control.update_called = true
-				snd_control.i += 1
-				if snd_control.pattern[snd_control.j][2] <= snd_control.i then
-					snd_control.i = 0
-					snd_control.j = (snd_control.j%#snd_control.pattern)+1
+			sndc.accum_dt += dt
+			if sndc.accum_dt >= 0.1 then
+				sndc.accum_dt = 0
+				sndc.update_called = true
+				sndc.i += 1
+				if sndc.pattern[sndc.j][2] <= sndc.i then
+					sndc.i = 0
+					sndc.j = (sndc.j%#sndc.pattern)+1
 				end
 
 				--increases current delay
@@ -78,7 +79,7 @@ function _init()
 				end
 				--sfx(0)
 			else
-				snd_control.update_called = false
+				sndc.update_called = false
 			end
 		end,
 		function()
@@ -86,7 +87,6 @@ function _init()
 		end
 	)
 
-	
 	for i=1,10,1 do
 		cols[i] = 1
 	end
@@ -116,8 +116,8 @@ function _update()
 		-- mexer em cols[i]?
 	end
 	--for fans in cols[cols_control.current_col] do
-		--fan.action = snd_control.pattern[snd_control.j][1]
-		--fan.sprite = 17 + snd_control.pattern[snd_control.j][1]
+		--fan.action = sndc.pattern[sndc.j][1]
+		--fan.sprite = 17 + sndc.pattern[sndc.j][1]
 	--end
 
 	if input then
@@ -134,8 +134,8 @@ function _update()
 		)
 	end
 
-	if snd_control.update_called and snd_control.pattern[snd_control.j][1] ~= 1 then
-		correct_input = (player.action == snd_control.pattern[snd_control.j][1])
+	if sndc.update_called then
+		correct_input = (player.action == sndc:curr_pattern())
 	end
 
 	update_timers()
@@ -143,26 +143,24 @@ end
 
 function _draw()
 	cls()
-	if snd_control.update_called then
+	if sndc.update_called then
 		print(".",0,8*2)
 	end
 	if correct_input then
 		print("o",0,0)
-	--else
-	--	print("",0,0)
+	else
+		print("x",0,0)
 	end
-	print(snd_control.i..","..a2b[snd_control.pattern[snd_control.j][1]]..","..a2b[snd_control.pattern[(snd_control.j%#snd_control.pattern)+1][1]],0,8)
-	--print(dgood,0,8*3)
-	--for i=1,10,1 do
-	--	print(a2b[snd_control.pattern[i]],(i-1)*5,8)
-	--end
+	for i=1,10,1 do
+		print(a2b[sndc:future_pattern(i-1)],(i-1)*5,8)
+	end
 	spr(player.sprite, 64, 64)
 	-- fans drawing
-	for col in all(cols) do
-		for fan in all(col) do
-			spr(fan.sprite, fan.x, fan.y)
-		end
-	end
+	--for col in all(cols) do
+	--	for fan in all(col) do
+	--		spr(fan.sprite, fan.x, fan.y)
+	--	end
+	--end
 end
 
 -- timers api. from: http://www.lexaloffle.com/bbs/?tid=3202
