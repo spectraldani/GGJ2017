@@ -19,7 +19,18 @@ snd_control = {
 	update_called = false,
 	pattern = {{1,50},{2,1}},
 	i = 0,
-	j = 1
+	j = 1,
+	curr_pattern = function(this)
+		return this.pattern[this.j][1]
+	end,
+	offset_pattern = function(this,di)
+		local i = this.i+di;
+		if this.pattern[this.j][2] <= i then
+			i -= this.pattern[this.j][2]
+			j = (j%#this.pattern)+1
+		end
+		return nil
+	end
 }
 correct_input = false
 a2b = {"_","‹","‘","”","ƒ"}
