@@ -17,13 +17,28 @@ player.sprite = 1
 snd_control = {
 	accum_dt = 0,
 	update_called = false,
-	pattern = {{1,50},{2,1}},
+	pattern = {{1,20*6},{2,20*6},{3,20*6}},
 	i = 0,
 	j = 1
 }
 correct_input = false
 a2b = {"_","‹","‘","”","ƒ"}
 dgood = 0
+
+-- columns controls
+cols_control = {
+	-- current column to be checked
+	current_col = 1,
+	-- maximum number of columns
+	max_cols = 6,
+	-- delay between column checks
+	check_delay = 30,
+	current_delay = 0
+}
+
+
+-- columns are made up by various fans
+cols = {}
 
 function _init()
 	init_timers()
@@ -40,7 +55,17 @@ function _init()
 					snd_control.i = 0
 					snd_control.j = (snd_control.j%#snd_control.pattern)+1
 				end
-				sfx(0)
+
+				--increases current delay
+				cols_control.current_delay += 1
+				-- change the column we're currently seeing
+				if cols_control.current_delay >= cols_control.check_delay then
+					cols_control.current_col += 1
+					if cols_control.current_col > cols_control.max_cols then
+						cols_control.current_col = 0
+					end
+				end
+				--sfx(0)
 			else
 				snd_control.update_called = false
 			end
@@ -48,7 +73,12 @@ function _init()
 		function()
 			restart_timer()
 		end
-		)
+	)
+
+	
+	for i=1,10,1 do
+		cols[i] = 1
+	end
 end
 
 function _update()
@@ -70,6 +100,15 @@ function _update()
 		input = true
 	end
 
+	-- update the current column
+	for i=1,#cols,1 do
+		-- mexer em cols[i]?
+	end
+	--for fans in cols[cols_control.current_col] do
+		--fan.action = snd_control.pattern[snd_control.j][1]
+		--fan.sprite = 17 + snd_control.pattern[snd_control.j][1]
+	--end
+
 	if input then
 		player.sprite = player.action
 		-- starts timer for returning to rest position
@@ -84,7 +123,7 @@ function _update()
 		)
 	end
 
-	if snd_control.update_called and snd_control.pattern[snd_control.j][1] ~= 1then
+	if snd_control.update_called and snd_control.pattern[snd_control.j][1] ~= 1 then
 		correct_input = (player.action == snd_control.pattern[snd_control.j][1])
 	end
 
@@ -97,7 +136,7 @@ function _draw()
 		print(".",0,8*2)
 	end
 	if correct_input then
-		print("O",0,0)
+		print("o",0,0)
 	--else
 	--	print("",0,0)
 	end
@@ -107,6 +146,12 @@ function _draw()
 	--	print(a2b[snd_control.pattern[i]],(i-1)*5,8)
 	--end
 	spr(player.sprite, 64, 64)
+	-- fans drawing
+	for col in all(cols) do
+		for fan in all(col) do
+			spr(fan.sprite, fan.x, fan.y)
+		end
+	end
 end
 
 -- timers api. from: http://www.lexaloffle.com/bbs/?tid=3202
@@ -173,10 +218,10 @@ __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000ff000000ff000000ff000000ff0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000ff000000ff000000ff000008ff800000ff00000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0000000000088000008880000008880000088000000ff00000000000000000000000000000000000000000000000000000000000000000000000000000000000
+00000000000880000008800000088000000880000008800000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
