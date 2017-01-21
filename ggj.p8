@@ -1,5 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
-version 8
+version 10
 __lua__
 -- data structure representing a player
 player = {}
@@ -12,6 +12,12 @@ player = {}
 player.action = 0
 -- current sprite. for now it corresponds to the action
 player.sprite = 1
+-- column that the player occupies
+player.col = 12
+-- row that the player occupies
+player.row = 2
+
+player.n_frames = 0
 
 front_beat = 3
 
@@ -140,10 +146,10 @@ function _init()
 					return 48
 				elseif row >= 12 then
 					return 64
-				elseif this.number == num_cols and row == 2 then
+				elseif this.number == num_cols and row == player.row then
 					-- player row
 					return 112
-				elseif this.number == num_cols-1 and row == 2 then
+				elseif this.number == num_cols-1 and row == player.row then
 					-- player's neighbour row
 					return 160
 				else
@@ -160,6 +166,7 @@ end
 
 function _update()
 	local input = false
+	player.action = 0
 	if btn(0) then
 		player.action = 3
 		input = true
@@ -175,6 +182,16 @@ function _update()
 	if btn(3) then
 		player.action = 1
 		input = true
+	end
+
+	player.n_frames += 1
+	if player.n_frames >= 10 then
+		player.frame = 1 - player.frame
+		player.n_frames = 0
+	end
+
+	if player.action == 0 then 
+		player.frame = 0
 	end
 
 	-- update the current column
@@ -234,7 +251,13 @@ function _draw()
 	for i=1,#cols,1 do
 		spr(cols[i]:get_sprite_type(1)+cols[i].action, cols[i].x, 8)
 		for j=2,12,1 do
-			spr(cols[i]:get_sprite_type(j)+cols[i].action+16*(cols[i].frame), cols[i].x, j*8)
+			printh("i "..i..",".."j "..j)
+			if i == player.col and j == player.row then
+				printh("true")
+				spr(cols[i]:get_sprite_type(j)+player.action+16*player.frame, cols[i].x, j*8)
+			else
+				spr(cols[i]:get_sprite_type(j)+cols[i].action+16*(cols[i].frame), cols[i].x, j*8)
+			end
 		end
 	end
 
