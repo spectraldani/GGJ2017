@@ -136,7 +136,9 @@ function _init()
 			beat = (num_cols-i+1)*cols_control.check_delay,
 			-- returns resting position of the correct sprite for the row
 			get_sprite_type = function(this, row)
-				if row >= 12 then
+				if row == 1 then
+					return 48
+				elseif row >= 12 then
 					return 64
 				elseif this.number == num_cols and row == 2 then
 					-- player row
@@ -216,32 +218,26 @@ function _draw()
 		print(".",0,8*3)
 	end
 	if correct_input then
-		print("o",0,8*1)
+		print("o",100,120)
 	elseif sndc:future_pattern_ocurr(5,player.action) and player.action~=1 then
-		print("too soon",0,8*1)
+		print("too soon",100,120)
 	elseif sndc:past_pattern_ocurred(5,player.action) and player.action~=1 then
-		print("too late",0,8*1)
+		print("too late",100,120)
 	else
-		print("x",0,8*1)
+		print("x",100,120)
 	end
 	for i=1,10,1 do
-		print(a2b[sndc:future_pattern(i-1)],(i-1)*5,8*2)
+		--print(a2b[sndc:future_pattern(i-1)-1],(i-1)*5,120)
+		print(a2b[sndc:future_pattern(i-1)+1],(i-1)*6,120)
 	end
-	--for i=1,10,1 do
-	--	print(a2b[sndc:past_pattern(i-1)],(i-1)*5,8*2)
-	--end
 	-- fans drawing
-	for i=1,#cols,1 do 
-		for j=2,12,1 do
+	for i=1,#cols,1 do
+		for j=1,12,1 do
 			printh("action"..cols[i].action)
 			spr(cols[i]:get_sprite_type(j)+cols[i].action+16*(cols[i].frame), cols[i].x, j*8)
 		end
 	end
 
-	-- screen drawing
-	for i = 1,#sndc.pattern,1 do
-		spr(48+sndc.pattern[i][1], 8*i, 8)
-	end
 end
 
 -- timers api. from: http://www.lexaloffle.com/bbs/?tid=3202
