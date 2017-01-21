@@ -109,6 +109,15 @@ cols_control = {
 -- columns are made up by various fans
 cols = {}
 
+function wrong_action(action)
+	if player.action == 0 and not (sndc:future_pattern_ocurr(2,player.action) or sndc:past_pattern_ocurred(2,player.action)) then
+		return true
+	elseif sndc:curr_pattern() ~= player.action and not (sndc:future_pattern_ocurr(5,player.action) or sndc:past_pattern_ocurred(5,player.action)) then
+		return true
+	end
+	return false
+end
+
 function _init()
 	init_timers()
 	add_timer(
@@ -125,9 +134,13 @@ function _init()
 					sndc.j = (sndc.j%#sndc.pattern)+1
 				end
 
-				if player.action == 0 and not (sndc:future_pattern_ocurr(2,player.action) or sndc:past_pattern_ocurred(2,player.action)) then
-					player.hits += 1
-				elseif sndc:curr_pattern() ~= player.action and not (sndc:future_pattern_ocurr(5,player.action) or sndc:past_pattern_ocurred(5,player.action)) then
+				-- if player.action == 0 and not (sndc:future_pattern_ocurr(2,player.action) or sndc:past_pattern_ocurred(2,player.action)) then
+				-- 	player.hits += 1
+				-- elseif sndc:curr_pattern() ~= player.action and not (sndc:future_pattern_ocurr(5,player.action) or sndc:past_pattern_ocurred(5,player.action)) then
+				-- 	player.hits += 1
+				-- end
+
+				if wrong_action() then 
 					player.hits += 1
 				end
 
