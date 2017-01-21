@@ -19,6 +19,8 @@ player.row = 2
 
 player.n_frames = 0
 
+player.hits = 0
+
 front_beat = 3
 
 -- sound timer control
@@ -123,6 +125,12 @@ function _init()
 					sndc.j = (sndc.j%#sndc.pattern)+1
 				end
 
+				if player.action == 0 and not (sndc:future_pattern_ocurr(2,player.action) or sndc:past_pattern_ocurred(2,player.action)) then
+					player.hits += 1
+				elseif sndc:curr_pattern() ~= player.action and not (sndc:future_pattern_ocurr(5,player.action) or sndc:past_pattern_ocurred(5,player.action)) then
+					player.hits += 1
+				end
+
 			else
 				sndc.update_called = false
 			end
@@ -190,7 +198,7 @@ function _update()
 		player.n_frames = 0
 	end
 
-	if player.action == 0 then 
+	if player.action == 0 then
 		player.frame = 0
 	end
 
@@ -221,27 +229,33 @@ function _update()
 		)
 	end
 
-	if sndc.update_called then
-		correct_input = (player.action == sndc:curr_pattern())
-	end
+	--if sndc.update_called then
+	--	correct_input = (player.action == sndc:curr_pattern())
+	--end
 
 	update_timers()
 end
 
 function _draw()
+	if player.hits >= 10 then
+		cls()
+		return
+	end
 	cls()
 	map(0,0,0,0,16,16)
 	if sndc.update_called then
 		print(".",0,8*3)
 	end
 	if correct_input then
+	--if sndc:curr_pattern() == player.action then
 		print("o",100,120)
 	elseif sndc:future_pattern_ocurr(5,player.action) and player.action~=0 then
 		print("too soon",100-8,120)
 	elseif sndc:past_pattern_ocurred(5,player.action) and player.action~=0 then
 		print("too late",100-8,120)
 	else
-		print("x",100,120)
+		--player.hits += 1
+		print(player.hits,100,120)
 	end
 	for i=1,10,1 do
 		--print(a2b[sndc:future_pattern(i-1)-1],(i-1)*5,120)
@@ -251,9 +265,9 @@ function _draw()
 	for i=1,#cols,1 do
 		spr(cols[i]:get_sprite_type(1)+cols[i].action, cols[i].x, 8)
 		for j=2,12,1 do
-			printh("i "..i..",".."j "..j)
+			--printh("i "..i..",".."j "..j)
 			if i == player.col and j == player.row then
-				printh("true")
+				--printh("true")
 				spr(cols[i]:get_sprite_type(j)+player.action+16*player.frame, cols[i].x, j*8)
 			else
 				spr(cols[i]:get_sprite_type(j)+cols[i].action+16*(cols[i].frame), cols[i].x, j*8)
