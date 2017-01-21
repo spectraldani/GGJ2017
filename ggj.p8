@@ -1,114 +1,6 @@
 pico-8 cartridge // http://www.pico-8.com
 version 10
 __lua__
--- data structure representing a player
-player = {}
--- current action
--- 0 : resting
--- 1 : crouching
--- 2 : hands to the right
--- 3 : hands to the left
--- 4 : hands up
-player.action = 0
--- current sprite. for now it corresponds to the action
-player.sprite = 1
--- column that the player occupies
-player.col = 12
--- row that the player occupies
-player.row = 2
-
-player.n_frames = 0
-
-player.hits = 0
-
-front_beat = 3
-
--- sound timer control
-sndc = {
-	accum_dt = 0,
-	update_called = false,
-	pattern = {{0,12*front_beat}, {1,10},{0,5},{2,10},{3,10}},
-	i = 0,
-	j = 1,
-	curr_pattern = function(this)
-		return this.pattern[this.j][1]
-	end,
-	future_duration = function(this,di)
-		local i = this.i+di
-		local j = this.j
-		while this.pattern[j][2] <= i do
-			i -= this.pattern[j][2]
-			j = (j%#this.pattern)+1
-		end
-		return this.pattern[j][2]
-	end,
-	future_pattern = function(this,di)
-		local i = this.i+di
-		local j = this.j
-		while this.pattern[j][2] <= i do
-			i -= this.pattern[j][2]
-			j = (j%#this.pattern)+1
-		end
-		return this.pattern[j][1]
-	end,
-	past_pattern = function(this,di)
-		local i = this.i-di
-		local j = this.j
-		while i < 0 do
-			i += this.pattern[j][2]
-			j = ((j-2)%#this.pattern)+1
-		end
-		return this.pattern[j][1]
-	end,
-	-- check if the received pattern happened in the past
-	past_pattern_ocurred = function(this,di,patt)
-		local i = this.i-di
-		local j = this.j
-		while i < 0 do
-			i += this.pattern[j][2]
-			j = ((j-2)%#this.pattern)+1
-			if this.pattern[j][1] == patt then
-				return true
-			end
-		end
-		return false
-	end,
-	-- check if the received pattern will happen in the future
-	future_pattern_ocurr = function(this,di,patt)
-		local i = this.i+di
-		local j = this.j
-		if this.pattern[j][1] == patt then
-			return true
-		end
-		while this.pattern[j][2] <= i do
-			i -= this.pattern[j][2]
-			j = (j%#this.pattern)+1
-			if this.pattern[j][1] == patt then
-				return true
-			end
-		end
-		return false
-	end,
-}
-correct_input = false
-a2b = {"_","ƒ","‘","‹","”"}
-dgood = 0
-
--- columns controls
-cols_control = {
-	-- current column to be checked
-	current_col = 1,
-	-- maximum number of columns
-	max_cols = 6,
-	-- delay between column checks
-	check_delay = front_beat,
-	current_delay = 0
-}
-
-
--- columns are made up by various fans
-cols = {}
-
 function wrong_action(action)
 	if player.action == 0 and not (sndc:future_pattern_ocurr(2,player.action) or sndc:past_pattern_ocurred(2,player.action)) then
 		return true
@@ -119,6 +11,114 @@ function wrong_action(action)
 end
 
 function _init()
+	timers = {}
+	-- data structure representing a player
+	player = {}
+	-- current action
+	-- 0 : resting
+	-- 1 : crouching
+	-- 2 : hands to the right
+	-- 3 : hands to the left
+	-- 4 : hands up
+	player.action = 0
+	-- current sprite. for now it corresponds to the action
+	player.sprite = 1
+	-- column that the player occupies
+	player.col = 12
+	-- row that the player occupies
+	player.row = 2
+
+	player.n_frames = 0
+
+	player.hits = 0
+
+	front_beat = 3
+
+	-- sound timer control
+	sndc = {
+		accum_dt = 0,
+		update_called = false,
+		pattern = {{0,12*front_beat}, {1,10},{0,5},{2,10},{3,10}},
+		i = 0,
+		j = 1,
+		curr_pattern = function(this)
+			return this.pattern[this.j][1]
+		end,
+		future_duration = function(this,di)
+			local i = this.i+di
+			local j = this.j
+			while this.pattern[j][2] <= i do
+				i -= this.pattern[j][2]
+				j = (j%#this.pattern)+1
+			end
+			return this.pattern[j][2]
+		end,
+		future_pattern = function(this,di)
+			local i = this.i+di
+			local j = this.j
+			while this.pattern[j][2] <= i do
+				i -= this.pattern[j][2]
+				j = (j%#this.pattern)+1
+			end
+			return this.pattern[j][1]
+		end,
+		past_pattern = function(this,di)
+			local i = this.i-di
+			local j = this.j
+			while i < 0 do
+				i += this.pattern[j][2]
+				j = ((j-2)%#this.pattern)+1
+			end
+			return this.pattern[j][1]
+		end,
+		-- check if the received pattern happened in the past
+		past_pattern_ocurred = function(this,di,patt)
+			local i = this.i-di
+			local j = this.j
+			while i < 0 do
+				i += this.pattern[j][2]
+				j = ((j-2)%#this.pattern)+1
+				if this.pattern[j][1] == patt then
+					return true
+				end
+			end
+			return false
+		end,
+		-- check if the received pattern will happen in the future
+		future_pattern_ocurr = function(this,di,patt)
+			local i = this.i+di
+			local j = this.j
+			if this.pattern[j][1] == patt then
+				return true
+			end
+			while this.pattern[j][2] <= i do
+				i -= this.pattern[j][2]
+				j = (j%#this.pattern)+1
+				if this.pattern[j][1] == patt then
+					return true
+				end
+			end
+			return false
+		end,
+	}
+	correct_input = false
+	a2b = {"_","ƒ","‘","‹","”"}
+	dgood = 0
+
+	-- columns controls
+	cols_control = {
+		-- current column to be checked
+		current_col = 1,
+		-- maximum number of columns
+		max_cols = 6,
+		-- delay between column checks
+		check_delay = front_beat,
+		current_delay = 0
+	}
+
+
+	-- columns are made up by various fans
+	cols = {}
 	init_timers()
 	add_timer(
 		"sound",
@@ -186,6 +186,14 @@ function _init()
 end
 
 function _update()
+	::reset::
+	if player.hits >= 10 then
+		if btn(4) or btn(5) then
+ 		_init()
+			goto reset
+		end
+		return
+	end
 	local input = false
 	player.action = 0
 	if btn(0) then
@@ -252,8 +260,11 @@ end
 function _draw()
 	if player.hits >= 10 then
 		cls()
+		print("game over my dude",0,0)
+		print("press Ž or — to restart!",0,8)
 		return
 	end
+
 	cls()
 	map(0,0,0,0,16,16)
 	if sndc.update_called then
