@@ -46,47 +46,54 @@ function _init()
 	sndc = {
 		accum_dt = 0,
 		update_called = false,
-		pattern = {{0,12*front_beat}, {1,10},{0,5},{2,10},{3,10}},
+		beatmap = {
+			{{0,12*front_beat},{1,10},{0,5},{2,10},{3,10}}, 
+			{{1,5},{2,5},{0,5}}
+		},
+		pattern = {
+			{0,12*front_beat}, {1,10},{0,5},{2,10},{3,10}
+		},
+		wave = 1,
 		i = 0,
 		j = 1,
 		curr_pattern = function(this)
-			return this.pattern[this.j][1]
+			return this.beatmap[this.wave][this.j][1]
 		end,
 		future_duration = function(this,di)
 			local i = this.i+di
 			local j = this.j
-			while this.pattern[j][2] <= i do
-				i -= this.pattern[j][2]
-				j = (j%#this.pattern)+1
+			while this.beatmap[this.wave][j][2] <= i do
+				i -= this.beatmap[this.wave][j][2]
+				j = (j%#this.beatmap[this.wave])+1
 			end
-			return this.pattern[j][2]
+			return this.beatmap[this.wave][j][2]
 		end,
 		future_pattern = function(this,di)
 			local i = this.i+di
 			local j = this.j
-			while this.pattern[j][2] <= i do
-				i -= this.pattern[j][2]
-				j = (j%#this.pattern)+1
+			while this.beatmap[this.wave][j][2] <= i do
+				i -= this.beatmap[this.wave][j][2]	
+				j = (j%#this.beatmap[this.wave])+1
 			end
-			return this.pattern[j][1]
+			return this.beatmap[this.wave][j][1]
 		end,
 		past_pattern = function(this,di)
 			local i = this.i-di
 			local j = this.j
 			while i < 0 do
-				i += this.pattern[j][2]
-				j = ((j-2)%#this.pattern)+1
+				i += this.beatmap[this.wave][j][2]
+				j = ((j-2)%#this.beatmap[this.wave])+1
 			end
-			return this.pattern[j][1]
+			return this.beatmap[this.wave][j][1]
 		end,
 		-- check if the received pattern happened in the past
 		past_pattern_ocurred = function(this,di,patt)
 			local i = this.i-di
 			local j = this.j
 			while i < 0 do
-				i += this.pattern[j][2]
-				j = ((j-2)%#this.pattern)+1
-				if this.pattern[j][1] == patt then
+				i += this.beatmap[this.wave][j][2]
+				j = ((j-2)%#this.beatmap[this.wave])+1
+				if this.beatmap[this.wave][j][1] == patt then
 					return true
 				end
 			end
@@ -96,13 +103,13 @@ function _init()
 		future_pattern_ocurr = function(this,di,patt)
 			local i = this.i+di
 			local j = this.j
-			if this.pattern[j][1] == patt then
+			if this.beatmap[this.wave][j][1] == patt then
 				return true
 			end
-			while this.pattern[j][2] <= i do
-				i -= this.pattern[j][2]
-				j = (j%#this.pattern)+1
-				if this.pattern[j][1] == patt then
+			while this.beatmap[this.wave][j][2] <= i do
+				i -= this.beatmap[this.wave][j][2]
+				j = (j%#this.beatmap[this.wave])+1
+				if this.beatmap[this.wave][j][1] == patt then
 					return true
 				end
 			end
