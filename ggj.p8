@@ -565,15 +565,15 @@ function _draw()
 
 	cls()
 	map(0,0,0,0,16,16)
-	if correct_input then
-		print("o",100,120)
-	elseif sndc:future_pattern_ocurr(5,player.action) and player.action~=0 then
-		print("too soon",100-8,120)
-	elseif sndc:past_pattern_ocurred(5,player.action) and player.action~=0 then
-		print("too late",100-8,120)
-	else
-		print(player.hits,100,120)
-	end
+	--if correct_input then
+	--	print("o",100,120)
+	--elseif sndc:future_pattern_ocurr(5,player.action) and player.action~=0 then
+	--	print("too soon",100-8,120)
+	--elseif sndc:past_pattern_ocurred(5,player.action) and player.action~=0 then
+	--	print("too late",100-8,120)
+	--else
+	--	print(player.hits,100,120)
+	--end
 	for i=1,19,1 do
 	--	print(a2b[sndc:future_pattern(i-1)-1],(i-1)*5,120)
 	--	print(a2b[sndc:future_pattern(i-1)+1],(12-i)*6,8)
