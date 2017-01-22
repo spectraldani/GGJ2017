@@ -2,6 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 10
 __lua__
 should_menu = true
+should_credits = false
 function wrong_action()
 	if player.action == 0 and not (sndc:future_pattern_ocurr(2,player.action) or sndc:past_pattern_ocurred(2,player.action)) then
 		return true
@@ -48,7 +49,10 @@ function _init()
 		update_called = false,
 		beatmap = {
 			{{0,12*front_beat}, {1,10},{0,5},{2,10},{3,10}}, 
-			{{0,12*front_beat}, {1,10},{2,10},{0,10}}
+			{{0,12*front_beat}, {1,10},{2,10},{0,10}},
+			{{0,12*front_beat}, {1,10}},
+			{{0,12*front_beat}, {1,10}},
+			{{0,12*front_beat}, {1,10}}
 		},
 		pattern = {
 			{0,12*front_beat}, {1,10},{0,10},{2,10},{3,10}
@@ -153,14 +157,14 @@ function _init()
 				end
 
 				if sndc.j > #sndc.beatmap[sndc.wave] then
-					sndc.wave += 1
+					sndc.wave += 2
 					sndc.j = 1
 					sndc.i = 0
 					player.row += 1
 				end
 
 				if sndc.wave > #sndc.beatmap then
-					print("vc ganhou otario")
+					should_credits = true
 					sndc.wave = 1
 					sndc.j = 1
 					sndc.i = 0
@@ -341,8 +345,23 @@ function _draw()
 	if player.hits >= player.max_hits then
 		cls()
 		sfx(-1)
-		print("GAME OVER",46,8*1)
+		print("game over",46,8*1)
 		print("press Ž or — to restart!",10,8*2)
+		return
+	end
+
+	if should_credits then
+		-- print credits
+		rectfill(0,0,128,128,1)
+		color(15)
+		print("credits", 60, 8*1)
+		print("carolina herbster .. programming", 60, 8*2)
+		print("daniel augusto .. programming, art, cooking", 60, 8*3)
+		print("heitor de aquino .. music", 60, 8*4)
+		print("henrique araújo .. management, encouragement, cooking", 60, 8*5)
+		print("ismália santiago .. music", 60, 8*6)
+		print("mariana fontenele .. music", 60, 8*7)
+		print("tito marques \"t6ito\".. art", 60, 8*8)
 		return
 	end
 
