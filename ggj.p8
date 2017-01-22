@@ -2,7 +2,7 @@ pico-8 cartridge // http://www.pico-8.com
 version 10
 __lua__
 should_menu = true
-should_credits = false
+should_credits = true
 function wrong_action()
 	if player.action == 0 and not (sndc:future_pattern_ocurr(2,player.action) or sndc:past_pattern_ocurred(2,player.action)) then
 		return true
@@ -45,17 +45,29 @@ function _init()
 
 	-- sound timer control
 	sndc = {
+		n_frames = 0,
 		accum_dt = 0,
 		update_called = false,
 		beatmap = {
-			{{0,12*front_beat}, {1,10},{0,5},{2,10},{3,10}}, 
-			{{0,12*front_beat}, {1,10},{2,10},{0,10}},
-			{{0,12*front_beat}, {1,10}},
-			{{0,12*front_beat}, {1,10}},
-			{{0,12*front_beat}, {1,10}}
+			{{0,11*front_beat}, {1,10},{0,10},{1,10},{0,10},{1,10},{0,10},{1,10},{0,10},{1,10},{0,10}}, 
+			{{0,11*front_beat}, {1,10},{2,10},{0,10}},
+			{{0,11*front_beat}, {1,10}},
+			{{0,11*front_beat}, {1,10}},
+			{{0,11*front_beat}, {1,10}}
 		},
-		pattern = {
-			{0,12*front_beat}, {1,10},{0,10},{2,10},{3,10}
+		beatmap_tempo = {
+			40,
+			40,
+			40,
+			40,
+			40
+		},
+		beatmap_music = {
+			1,
+			2,
+			3,
+			4,
+			5
 		},
 		wave = 1,
 		i = 0,
@@ -107,7 +119,7 @@ function _init()
 		future_pattern_ocurr = function(this,di,patt)
 			local i = this.i+di
 			local j = this.j
-			printh("i"..i.." j"..j.."w"..this.wave)
+			-- printh("i"..i.." j"..j.."w"..this.wave)
 			if this.beatmap[this.wave][j][1] == patt then
 				return true
 			end
@@ -146,7 +158,8 @@ function _init()
 		function(dt,elapsed,length,timer)
 			sndc.accum_dt += dt
 			-- beat interval
-			if sndc.accum_dt >= 0.1 then
+			--if sndc.accum_dt >= 0.1 then
+			if sndc.accum_dt >= get_tempo(sndc.beatmap_tempo[sndc.wave])/10 then
 				sndc.accum_dt = 0
 				sndc.update_called = true
 				sndc.i += 1
@@ -157,10 +170,11 @@ function _init()
 				end
 
 				if sndc.j > #sndc.beatmap[sndc.wave] then
-					sndc.wave += 2
+					sndc.wave += 1
 					sndc.j = 1
 					sndc.i = 0
-					player.row += 1
+					player.row += 2
+					music(sndc.beatmap_music[sndc.wave])
 				end
 
 				if sndc.wave > #sndc.beatmap then
@@ -172,18 +186,23 @@ function _init()
 
 				register_wrong += 1
 				--printh("register wrong"..register_wrong)
-				if wrong_action() and register_wrong%2 == 0 then
+				if wrong_action() and register_wrong%5 == 0 then
 					player.hits += 1
 				end
+
+				--sfx(5)
 
 			else
 				sndc.update_called = false
 			end
 		end,
 		function()
-			restart_timer()
+			restart_timer("sound", false)
 		end,
-		true -- start paused
+		true, -- start paused,
+		function()
+			music(sndc.beatmap_music[sndc.wave])
+		end
 	)
 
 	-- set each column attribute
@@ -225,8 +244,8 @@ function _update()
  			should_menu = false
  			restart_timer("sound",false)
  			music(-1)
- 			sfx(4)
-			goto restart
+ 			--sfx(4)
+ 			goto restart
 		end
 		return
 	end
@@ -234,7 +253,7 @@ function _update()
 		if btn(4) or btn(5) then
  			_init()
  			restart_timer("sound",false)
-			sfx(4)
+			--sfx(4)
 			goto restart
 		end
 		return
@@ -271,6 +290,39 @@ function _update()
 	if player.action == 0 then
 		player.frame = 0
 	end
+
+	-- sndc.n_frames += 1
+	-- if sndc.n_frames >= 20 then
+	-- 	sndc.n_frames = 0
+	-- 	sndc.update_called = true
+	-- 	sndc.i += 1
+	-- 	if sndc.beatmap[sndc.wave][sndc.j][2] <= sndc.i then
+	-- 		sndc.i = 0
+	-- 		-- sndc.j = (sndc.j%#sndc.beatmap[sndc.wave])+1
+	-- 		sndc.j += 1
+	-- 	end
+
+	-- 	if sndc.j > #sndc.beatmap[sndc.wave] then
+	-- 		sndc.wave += 2
+	-- 		sndc.j = 1
+	-- 		sndc.i = 0
+	-- 		player.row += 2
+	-- 	end
+
+	-- 	if sndc.wave > #sndc.beatmap then
+	-- 		should_credits = true
+	-- 		sndc.wave = 1
+	-- 		sndc.j = 1
+	-- 		sndc.i = 0
+	-- 	end
+
+	-- 	register_wrong += 1
+	-- 	--printh("register wrong"..register_wrong)
+	-- 	if wrong_action() and register_wrong%2 == 0 then
+	-- 		player.hits += 1
+	-- 	end
+	-- 	sfx(5)
+	-- end
 
 	-- update the current column
 	for i=1,#cols,1 do
@@ -352,16 +404,24 @@ function _draw()
 
 	if should_credits then
 		-- print credits
+		pause_timer("sound")
+		sfx(-1)
 		rectfill(0,0,128,128,1)
 		color(15)
-		print("credits", 60, 8*1)
-		print("carolina herbster .. programming", 60, 8*2)
-		print("daniel augusto .. programming, art, cooking", 60, 8*3)
-		print("heitor de aquino .. music", 60, 8*4)
-		print("henrique araújo .. management, encouragement, cooking", 60, 8*5)
-		print("ismália santiago .. music", 60, 8*6)
-		print("mariana fontenele .. music", 60, 8*7)
-		print("tito marques \"t6ito\".. art", 60, 8*8)
+		print("===================", 0, 8*1)
+		print("    credits", 0, 8*2)
+		print("===================", 0, 8*3)
+		print("--- programming ---", 0, 8*4)
+		print("daniel augusto", 0, 8*5)
+		print("carolina herster", 0, 8*6)
+		print("--- art -----------", 0, 8*7)
+		print("tito marques \"t6ito\"", 0, 8*8)
+		print("--- music ---------", 0, 8*9)
+		print("ismalia santiago", 0, 8*10)
+		print("heitor de aquino", 0, 8*11)
+		print("mariana fonteneles", 0, 8*12)
+		print("--- management ----", 0, 8*13)
+		print("henrique araujo", 0, 8*14)
 		return
 	end
 
@@ -384,12 +444,13 @@ function _draw()
 	for i=1,19,1 do
 	--	print(a2b[sndc:future_pattern(i-1)-1],(i-1)*5,120)
 	--	print(a2b[sndc:future_pattern(i-1)+1],(12-i)*6,8)
-		print(a2b[sndc:future_pattern((i-1)*3)+1],(19-i)*5-1,10)
+		--print(a2b[sndc:future_pattern((i-1)*3)+1],(19-i)*5-1,10)
+		--print(a2b[sndc:future_pattern(i-1)+1],(19-i)*5-1,10)
 	end
 
 	-- fans drawing
 	for i=1,#cols,1 do
-		--spr(cols[i]:get_sprite_type(1)+cols[i].action, cols[i].x, 8)
+		spr(cols[i]:get_sprite_type(1)+cols[i].action, cols[i].x, 8)
 		for j=2,12,1 do
 			--printh("i "..i..",".."j "..j)
 			if i == player.col and j == player.row then
@@ -425,13 +486,14 @@ end
 
 function add_timer (name,
     length, step_fn, end_fn,
-    start_paused)
+    start_paused,start_fn)
   local timer = {
     length=length,
     elapsed=0,
     active=not start_paused,
     step_fn=step_fn,
-    end_fn=end_fn
+    end_fn=end_fn,
+    start_fn=start_fn
   }
   timers[name] = timer
   return timer
@@ -442,6 +504,9 @@ function update_timers ()
   local dt = t - last_time
   last_time = t
   for name,timer in pairs(timers) do
+  	if timer.active and timer.elapsed == 0 and timer.start_fn ~= nil then
+  		timer.start_fn()
+  	end
     if timer.active then
       timer.elapsed += dt
       local elapsed = timer.elapsed
@@ -648,8 +713,8 @@ __sfx__
 011d0008003550240503355033550035500355033550c400220001f4051d4051b4051f405184051a4051b002023050c3000e30502305093000730505305093000730505305043000030004302073000530204302
 011d001007230220000a2350a23507230072300a235000000c2350a2350c2350a2350e10000000210000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 011d00020000018754240000c005000000c005000000c005000000c005000000c005000000c005000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-001800200e6200f6200f6200e6200c6200d62010620126201262011620106200d6200c6200d620106201362013620136200f6200c6200e6200f620106201062012620126200f6200d6200e6200f6201062011620
-001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+011800200e6200f6200f6200e6200c6200d62010620126201262011620106200d6200c6200d620106201362013620136200f6200c6200e6200f620106201062012620126200f6200d6200e6200f6201062011620
+012800021805022605000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
