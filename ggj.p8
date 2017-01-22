@@ -213,6 +213,7 @@ function _update()
 		if btn(4) or btn(5) then
  			_init()
  			restart_timer("sound",false)
+			sfx(4)
 			goto restart
 		end
 		return
