@@ -341,8 +341,8 @@ function _draw()
 	if player.hits >= player.max_hits then
 		cls()
 		sfx(-1)
-		print("game over my dude",0,0)
-		print("press Ž or — to restart!",0,8)
+		print("GAME OVER",46,0)
+		print("press Ž or — to restart!",10,8)
 		return
 	end
 
