@@ -40,6 +40,8 @@ function _init()
 
 	front_beat = 5
 
+	register_wrong = 0
+
 	-- sound timer control
 	sndc = {
 		accum_dt = 0,
@@ -131,6 +133,7 @@ function _init()
 		60,
 		function(dt,elapsed,length,timer)
 			sndc.accum_dt += dt
+			-- beat interval
 			if sndc.accum_dt >= 0.1 then
 				sndc.accum_dt = 0
 				sndc.update_called = true
@@ -146,7 +149,9 @@ function _init()
 				-- 	player.hits += 1
 				-- end
 
-				if wrong_action() then
+				register_wrong += 1
+				--printh("register wrong"..register_wrong)
+				if wrong_action() and register_wrong%2 == 0 then
 					player.hits += 1
 				end
 
