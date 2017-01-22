@@ -4,6 +4,7 @@ __lua__
 should_credits = false
 should_intro = true
 should_mainmenu = true
+should_gameover = false
 function wrong_action()
 	if player.action == 0 and not (sndc:future_pattern_ocurr(2,player.action) or sndc:past_pattern_ocurred(2,player.action)) then
 		return true
@@ -29,6 +30,7 @@ intro = {
 }
 
 function _init()
+	should_gameover = false
 	timers = {}
 	-- data structure representing a player
 	player = {}
@@ -274,11 +276,11 @@ function _update()
 		end
 		return
 	end
-	if player.hits >= 10 then
+	if should_gameover then
 		if btn(4) or btn(5) then
  			_init()
  			restart_timer("sound",false)
-			--sfx(4)
+			sfx(-1)
 			goto restart
 		end
 		return
@@ -390,6 +392,11 @@ function _update()
 end
 
 function _draw()
+	if should_gameover then
+		print("game over",46,8*1)
+		print("press Ž or — to restart!",10,8*2)
+		return
+	end
 	if should_mainmenu then
 		local x = 27
 		local y = 27
@@ -519,10 +526,11 @@ function _draw()
 		return
 	end
 	if player.hits >= player.max_hits then
+		should_gameover = true
 		cls()
 		sfx(-1)
-		print("game over",46,8*1)
-		print("press Ž or — to restart!",10,8*2)
+		music(-1)
+		sfx(63)
 		return
 	end
 
@@ -877,7 +885,7 @@ __sfx__
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+011f00201f230212301f2302323023100232301f100212301f2302110021230261052610526235262352a10021230232302123024230241002423028105262302823028000262301a20024230242002323028500
 __music__
 02 00010203
 00 05424344
