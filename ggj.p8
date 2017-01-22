@@ -42,6 +42,7 @@ function _init()
 	-- 3 : hands to the left
 	-- 4 : hands up
 	player.action = 0
+	player.frame = 0
 	-- current sprite. for now it corresponds to the action
 	player.sprite = 1
 	-- column that the player occupies
@@ -222,7 +223,7 @@ function _init()
 		true, -- start paused,
 		function()
 			music(sndc.beatmap_music[sndc.wave])
-			sfx(4)
+			sfx(4,3)
 		end
 	)
 
@@ -232,6 +233,7 @@ function _init()
 		cols[i] = {
 			x = (i-1)*8,
 			action = 1,
+			sprite = 0,
 			number = i,
 			beat = (num_cols-i+1)*cols_control.check_delay,
 			-- returns resting position of the correct sprite for the row
@@ -266,7 +268,7 @@ function _update()
 			should_credits = false
 			should_mainmenu = true
 			sfx(-1)
- 			--_init()
+ 			_init()
  			wait(time(),0.2)
 		end
 		return
@@ -277,6 +279,11 @@ function _update()
 			should_mainmenu = false
 			music(0)
 			intro.t = time()
+			if not should_intro then
+ 			 	music(-1)
+	 			restart_timer("sound",false)
+	 			goto restart
+ 			end
 		elseif btn(5) then
 			printh("exit menu 2")
 			should_mainmenu = false
