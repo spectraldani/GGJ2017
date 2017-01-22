@@ -5,6 +5,7 @@ should_credits = false
 should_intro = true
 should_mainmenu = true
 should_gameover = false
+should_wait = false
 function wrong_action()
 	if player.action == 0 and not (sndc:future_pattern_ocurr(2,player.action) or sndc:past_pattern_ocurred(2,player.action)) then
 		return true
@@ -19,13 +20,13 @@ intro = {
 	t = 0,
 	t2 = 0,
 	c = 0,
-	max_time = 1,
+	max_time = 4,
 	textos = {
 	{"i","got","a","ticket","for","today's","match!","this","is","going","to","be","fun!"},
 	{"let","me","see,","this","is","my","row,","up","here","in","the..."},
 	{"other","team's","hooligans","area?","oh","no!"},
 	{"maybe","if","i","blend","in,","they","won't","notice","me","while","i","escape!"},
-	{"[","follow","the","lead","and","move","as","the","crowd","does","using","your","directional","keys","]"}
+	{"[","follow","the","lead","and","move","as","the","crowd","does","holding","your","directional","keys","]"}
 	}
 }
 
@@ -259,18 +260,32 @@ end
 
 function _update()
 	::restart::
+	if should_credits then
+		if btn(4) or btn(5) then
+			printh("exit creds")
+			should_credits = false
+			should_mainmenu = true
+			sfx(-1)
+ 			--_init()
+ 			wait(time(),0.2)
+		end
+		return
+	end
 	if should_mainmenu then
 		if btn(4) then
+			printh("exit menu")
 			should_mainmenu = false
 			music(0)
 			intro.t = time()
 		elseif btn(5) then
+			printh("exit menu 2")
 			should_mainmenu = false
  			should_credits = true
  			sfx(-1)
 			music(-1)
 			sfx(63)
 			pause_timer("sound")
+			wait(time(),0.2)
 		end
 		return
 	end
@@ -425,8 +440,8 @@ function _draw()
 		spr(21,x+4*8,y,4,4)
 		palt(14,false)
 		color(7)
-		print("press start to Ž",30,80,0)
-		print("press credits to —",26,88,0)
+		print("press Ž/z to start",30-3,80,0)
+		print("press —/x for credits ",26-3,88,0)
 		return
 	end
 	if should_credits then
@@ -662,6 +677,11 @@ end
 
 function get_tempo (speed)
 	return speed*183/22050
+end
+
+function wait(t,goal)
+	while time()-t < goal do
+	end
 end
 
 
