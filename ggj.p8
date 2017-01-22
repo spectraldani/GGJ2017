@@ -62,7 +62,7 @@ function _init()
 		accum_dt = 0,
 		update_called = false,
 		beatmap = {
-			{{0,11*front_beat}, {1,10},{0,10},{1,10},{0,10},{1,10},{0,10},{1,10},{0,10},{1,10},{0,10}}, 
+			{{0,11*front_beat}, {1,10},{0,10},{1,10},{0,10},{1,10},{0,10},{1,10},{0,10},{1,10},{0,10}},
 			{{0,11*front_beat}, {1,10},{2,10},{0,10}},
 			{{0,11*front_beat}, {1,10}},
 			{{0,11*front_beat}, {1,10}},
@@ -258,7 +258,8 @@ function _update()
 			music(0)
 			intro.t = time()
 		elseif btn(5) then
- 			sfx(4)
+			should_mainmenu = false
+ 			should_credits = true
 		end
 		return
 	end
@@ -407,7 +408,30 @@ function _draw()
 		spr(21,x+4*8,y,4,4)
 		palt(14,false)
 		color(7)
-		print("press start to Ž",30,80)
+		print("press start to Ž",30,80,0)
+		print("press credits to —",26,88,0)
+		return
+	end
+	if should_credits then
+		-- print credits
+		pause_timer("sound")
+		sfx(-1)
+		rectfill(0,0,128,128,1)
+		color(15)
+		print("===================", 0, 8*1)
+		print("    credits", 0, 8*2)
+		print("===================", 0, 8*3)
+		print("--- programming ---", 0, 8*4)
+		print("daniel augusto", 0, 8*5)
+		print("carolina herbster", 0, 8*6)
+		print("--- art -----------", 0, 8*7)
+		print("tito marques \"t6ito\"", 0, 8*8)
+		print("--- music ---------", 0, 8*9)
+		print("ismalia santiago", 0, 8*10)
+		print("heitor de aquino", 0, 8*11)
+		print("mariana fonteneles", 0, 8*12)
+		print("--- management ----", 0, 8*13)
+		print("henrique araujo", 0, 8*14)
 		return
 	end
 	if should_intro then
@@ -501,43 +525,15 @@ function _draw()
 		return
 	end
 
-	if should_credits then
-		-- print credits
-		pause_timer("sound")
-		sfx(-1)
-		rectfill(0,0,128,128,1)
-		color(15)
-		print("===================", 0, 8*1)
-		print("    credits", 0, 8*2)
-		print("===================", 0, 8*3)
-		print("--- programming ---", 0, 8*4)
-		print("daniel augusto", 0, 8*5)
-		print("carolina herbster", 0, 8*6)
-		print("--- art -----------", 0, 8*7)
-		print("tito marques \"t6ito\"", 0, 8*8)
-		print("--- music ---------", 0, 8*9)
-		print("ismalia santiago", 0, 8*10)
-		print("heitor de aquino", 0, 8*11)
-		print("mariana fonteneles", 0, 8*12)
-		print("--- management ----", 0, 8*13)
-		print("henrique araujo", 0, 8*14)
-		return
-	end
-
 	cls()
 	map(0,0,0,0,16,16)
-	if sndc.update_called then
-		print(".",0,8*3)
-	end
 	if correct_input then
-	--if sndc:curr_pattern() == player.action then
 		print("o",100,120)
 	elseif sndc:future_pattern_ocurr(5,player.action) and player.action~=0 then
 		print("too soon",100-8,120)
 	elseif sndc:past_pattern_ocurred(5,player.action) and player.action~=0 then
 		print("too late",100-8,120)
 	else
-		--player.hits += 1
 		print(player.hits,100,120)
 	end
 	for i=1,19,1 do
@@ -548,13 +544,13 @@ function _draw()
 		--print(a2b[sndc:future_pattern(i-1)-1],(i-1)*5,120)
 		--print(a2b[sndc:future_pattern(i-1)+1],(12-i)*6,8)
 		--print(a2b[sndc:future_pattern((i-1)*3)+1],(19-i)*5-1,10)
-		--spr(144+sndc:future_pattern((i-1)*3),(19-i)*5-1,8)
+		spr(144+sndc:future_pattern((i-1)*3),(19-i)*5-1,8)
 		--sspr(sndc:future_pattern((i-1)*3)*8,72,8,8,(19-i)*5-1,8,5,8)
 	end
 
 	-- fans drawing
 	for i=1,#cols,1 do
-		spr(cols[i]:get_sprite_type(1)+cols[i].action, cols[i].x, 8)
+		--spr(cols[i]:get_sprite_type(1)+cols[i].action, cols[i].x, 8)
 		for j=2,12,1 do
 			--printh("i "..i..",".."j "..j)
 			if i == player.col and j == player.row then
@@ -565,6 +561,8 @@ function _draw()
 			end
 		end
 	end
+
+	spr(46,player.col*8,player.row*8)
 	--player lives drawing
 	local lives_spr
 	if player.hits > 0.7*player.max_hits then
@@ -797,7 +795,7 @@ __map__
 00000000000000000000000019191a1900000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a2a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+2c2b2c2b2c2b2c2b2c2b2c2b2c2b2c2b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
