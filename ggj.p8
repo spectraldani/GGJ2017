@@ -400,9 +400,11 @@ function _draw()
 		print(player.hits,100,120)
 	end
 	for i=1,19,1 do
-	--	print(a2b[sndc:future_pattern(i-1)-1],(i-1)*5,120)
-	--	print(a2b[sndc:future_pattern(i-1)+1],(12-i)*6,8)
-		print(a2b[sndc:future_pattern((i-1)*3)+1],(19-i)*5-1,10)
+		--print(a2b[sndc:future_pattern(i-1)-1],(i-1)*5,120)
+		--print(a2b[sndc:future_pattern(i-1)+1],(12-i)*6,8)
+		--print(a2b[sndc:future_pattern((i-1)*3)+1],(19-i)*5-1,10)
+		spr(144+sndc:future_pattern((i-1)*3),(19-i)*5-1,8)
+		--sspr(sndc:future_pattern((i-1)*3)*8,72,8,8,(19-i)*5-1,8,5,8)
 	end
 
 	-- fans drawing
