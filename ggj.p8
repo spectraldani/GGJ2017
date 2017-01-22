@@ -33,6 +33,8 @@ function _init()
 
 	player.hits = 0
 
+	player.max_hits = 10
+
 	front_beat = 5
 
 	-- sound timer control
@@ -283,7 +285,7 @@ function _draw()
 		print("menu",0,0)
 		return
 	end
-	if player.hits >= 10 then
+	if player.hits >= player.max_hits then
 		cls()
 		print("game over my dude",0,0)
 		print("press  or — to restart!",0,8)
@@ -323,7 +325,17 @@ function _draw()
 			end
 		end
 	end
-
+	--player lives drawing
+	local lives_spr
+	if player.hits > 0.7*player.max_hits then
+		lives_spr = 59
+	elseif player.hits <= 0.7*player.max_hits and player.hits > 0.5*player.max_hits then
+		lives_spr = 57
+	else --player.hits <= 0.5*player.max_hits
+		lives_spr = 58
+	end
+	palt(0, false)
+	spr(lives_spr, 14*8, 2*8)
 end
 
 -- timers api. from: http://www.lexaloffle.com/bbs/?tid=3202
