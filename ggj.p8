@@ -19,7 +19,7 @@ intro = {
 	t = 0,
 	t2 = 0,
 	c = 0,
-	max_time = 4,
+	max_time = 1,
 	textos = {
 	{"i","got","a","ticket","for","today's","match!","this","is","going","to","be","fun!"},
 	{"let","me","see,","this","is","my","row,","up","here","in","the..."},
@@ -194,6 +194,10 @@ function _init()
 
 				if sndc.wave > #sndc.beatmap then
 					should_credits = true
+					sfx(-1)
+					music(-1)
+					sfx(63)
+					pause_timer("sound")
 					sndc.wave = 1
 					sndc.j = 1
 					sndc.i = 0
@@ -212,11 +216,12 @@ function _init()
 			end
 		end,
 		function()
-			restart_timer("sound", false)
+			printh("timer end")
 		end,
 		true, -- start paused,
 		function()
 			music(sndc.beatmap_music[sndc.wave])
+			sfx(4)
 		end
 	)
 
@@ -262,15 +267,19 @@ function _update()
 		elseif btn(5) then
 			should_mainmenu = false
  			should_credits = true
+ 			sfx(-1)
+			music(-1)
+			sfx(63)
+			pause_timer("sound")
 		end
 		return
 	end
-	if should_intro then
+	if should_intro and not should_credits then
 		if btn(5) then
  			should_intro = false
- 			restart_timer("sound",false)
+ 			printh("skip intro")
  			music(-1)
- 			--sfx(4)
+ 			restart_timer("sound",false)
  			goto restart
 		end
 		return
@@ -278,6 +287,7 @@ function _update()
 	if should_gameover then
 		if btn(4) or btn(5) then
  			_init()
+ 			printh("restart gameover")
  			restart_timer("sound",false)
 			sfx(-1)
 			goto restart
@@ -421,8 +431,6 @@ function _draw()
 	end
 	if should_credits then
 		-- print credits
-		pause_timer("sound")
-		sfx(-1)
 		rectfill(0,0,128,128,1)
 		color(15)
 		print("===================", 0, 8*1)
@@ -505,9 +513,9 @@ function _draw()
 			intro.t2 = intro.t
 			if intro.e > #intro.textos then
 				should_intro = false
+				music(-1)
+				printh("restart end cutscene")
 	 			restart_timer("sound",false)
-	 			music(-1)
-	 			sfx(4)
 	 			return
 			end
 		end
@@ -529,7 +537,7 @@ function _draw()
 		cls()
 		sfx(-1)
 		music(-1)
-		sfx(63)
+		sfx(62)
 		return
 	end
 
@@ -594,6 +602,7 @@ local last_time = nil
 
 function init_timers ()
   last_time = time()
+  timers = {}
 end
 
 function add_timer (name,
@@ -638,11 +647,13 @@ function update_timers ()
 end
 
 function pause_timer (name)
+  printh("pause "..name)
   local timer = timers[name]
   if (timer) timer.active = false
 end
 
 function restart_timer (name, start_paused)
+  printh("restart "..name)
   local timer = timers[name]
   if (not timer) return
   timer.elapsed = 0
@@ -883,7 +894,7 @@ __sfx__
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+014800001857017570135701057010501105001050110500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 011f00201f230212301f2302323023100232301f100212301f2302110021230261052610526235262352a10021230232302123024230241002423028105262302823028000262301a20024230242002323028500
 __music__
 03 00010203
