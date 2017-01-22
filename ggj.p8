@@ -11,6 +11,7 @@ function wrong_action(action)
 end
 
 function _init()
+	should_menu = true
 	timers = {}
 	-- data structure representing a player
 	player = {}
@@ -32,7 +33,7 @@ function _init()
 
 	player.hits = 0
 
-	front_beat = 3
+	front_beat = 5
 
 	-- sound timer control
 	sndc = {
@@ -140,7 +141,7 @@ function _init()
 				-- 	player.hits += 1
 				-- end
 
-				if wrong_action() then 
+				if wrong_action() then
 					player.hits += 1
 				end
 
@@ -150,7 +151,8 @@ function _init()
 		end,
 		function()
 			restart_timer()
-		end
+		end,
+		true -- start paused
 	)
 
 	-- set each column attribute
@@ -186,11 +188,19 @@ function _init()
 end
 
 function _update()
-	::reset::
+	::restart::
+	if should_menu then
+		if btn(4) or btn(5) then
+ 			should_menu = false
+ 			restart_timer("sound",false)
+			goto restart
+		end
+		return
+	end
 	if player.hits >= 10 then
 		if btn(4) or btn(5) then
- 		_init()
-			goto reset
+ 			_init()
+			goto restart
 		end
 		return
 	end
@@ -258,6 +268,11 @@ function _update()
 end
 
 function _draw()
+	if should_menu then
+		cls()
+		print("menu",0,0)
+		return
+	end
 	if player.hits >= 10 then
 		cls()
 		print("game over my dude",0,0)
@@ -347,12 +362,18 @@ function update_timers ()
   end
 end
 
+function pause_timer (name)
+  local timer = timers[name]
+  if (timer) timer.active = false
+end
+
 function restart_timer (name, start_paused)
   local timer = timers[name]
   if (not timer) return
   timer.elapsed = 0
   timer.active = not start_paused
 end
+
 
 __gfx__
 0000000001230000000000000000000000000000000000000000000000000000000000005555555555555555555555550000000000000000dddd1d1d1d1d1d1d
