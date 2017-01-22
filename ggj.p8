@@ -187,6 +187,7 @@ function _init()
 					player.row += 3
 					music(-1)
 					music(sndc.beatmap_music[sndc.wave])
+					player.hits = 0
 				end
 
 				if sndc.wave > #sndc.beatmap then
