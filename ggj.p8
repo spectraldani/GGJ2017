@@ -268,8 +268,8 @@ function _update()
 			should_credits = false
 			should_mainmenu = true
 			sfx(-1)
- 			_init()
- 			wait(time(),0.2)
+			_init()
+			wait(time(),0.2)
 		end
 		return
 	end
@@ -279,16 +279,17 @@ function _update()
 			should_mainmenu = false
 			music(0)
 			intro.t = time()
+			wait(time(),0.1)
 			if not should_intro then
- 			 	music(-1)
-	 			restart_timer("sound",false)
-	 			goto restart
- 			end
+				music(-1)
+				restart_timer("sound",false)
+				goto restart
+			end
 		elseif btn(5) then
 			printh("exit menu 2")
 			should_mainmenu = false
- 			should_credits = true
- 			sfx(-1)
+			should_credits = true
+			sfx(-1)
 			music(-1)
 			sfx(63)
 			pause_timer("sound")
@@ -298,19 +299,32 @@ function _update()
 	end
 	if should_intro and not should_credits then
 		if btn(5) then
- 			should_intro = false
- 			printh("skip intro")
- 			music(-1)
- 			restart_timer("sound",false)
- 			goto restart
+			should_intro = false
+			printh("skip intro")
+			music(-1)
+			restart_timer("sound",false)
+			goto restart
+		end
+		if btn(4) then
+			intro.e += 1
+			if intro.e > #intro.textos then
+				should_intro = false
+				printh("skip intro")
+				music(-1)
+				restart_timer("sound",false)
+				goto restart
+			end
+			intro.t = time()
+			intro.t2 = intro.t
+			wait(time(),0.1)
 		end
 		return
 	end
 	if should_gameover then
 		if btn(4) or btn(5) then
- 			_init()
- 			printh("restart gameover")
- 			restart_timer("sound",false)
+			_init()
+			printh("restart gameover")
+			restart_timer("sound",false)
 			sfx(-1)
 			goto restart
 		end
@@ -351,35 +365,35 @@ function _update()
 
 	-- sndc.n_frames += 1
 	-- if sndc.n_frames >= 20 then
-	-- 	sndc.n_frames = 0
-	-- 	sndc.update_called = true
-	-- 	sndc.i += 1
-	-- 	if sndc.beatmap[sndc.wave][sndc.j][2] <= sndc.i then
-	-- 		sndc.i = 0
-	-- 		-- sndc.j = (sndc.j%#sndc.beatmap[sndc.wave])+1
-	-- 		sndc.j += 1
-	-- 	end
+	--	sndc.n_frames = 0
+	--	sndc.update_called = true
+	--	sndc.i += 1
+	--	if sndc.beatmap[sndc.wave][sndc.j][2] <= sndc.i then
+	--		sndc.i = 0
+	--		-- sndc.j = (sndc.j%#sndc.beatmap[sndc.wave])+1
+	--		sndc.j += 1
+	--	end
 
-	-- 	if sndc.j > #sndc.beatmap[sndc.wave] then
-	-- 		sndc.wave += 2
-	-- 		sndc.j = 1
-	-- 		sndc.i = 0
-	-- 		player.row += 2
-	-- 	end
+	--	if sndc.j > #sndc.beatmap[sndc.wave] then
+	--		sndc.wave += 2
+	--		sndc.j = 1
+	--		sndc.i = 0
+	--		player.row += 2
+	--	end
 
-	-- 	if sndc.wave > #sndc.beatmap then
-	-- 		should_credits = true
-	-- 		sndc.wave = 1
-	-- 		sndc.j = 1
-	-- 		sndc.i = 0
-	-- 	end
+	--	if sndc.wave > #sndc.beatmap then
+	--		should_credits = true
+	--		sndc.wave = 1
+	--		sndc.j = 1
+	--		sndc.i = 0
+	--	end
 
-	-- 	register_wrong += 1
-	-- 	--printh("register wrong"..register_wrong)
-	-- 	if wrong_action() and register_wrong%2 == 0 then
-	-- 		player.hits += 1
-	-- 	end
-	-- 	sfx(5)
+	--	register_wrong += 1
+	--	--printh("register wrong"..register_wrong)
+	--	if wrong_action() and register_wrong%2 == 0 then
+	--		player.hits += 1
+	--	end
+	--	sfx(5)
 	-- end
 
 	-- update the current column
@@ -537,8 +551,8 @@ function _draw()
 				should_intro = false
 				music(-1)
 				printh("restart end cutscene")
-	 			restart_timer("sound",false)
-	 			return
+				restart_timer("sound",false)
+				return
 			end
 		end
 		local y = 100
@@ -660,9 +674,9 @@ function update_timers ()
   local dt = t - last_time
   last_time = t
   for name,timer in pairs(timers) do
-  	if timer.active and timer.elapsed == 0 and timer.start_fn ~= nil then
-  		timer.start_fn()
-  	end
+ 	if timer.active and timer.elapsed == 0 and timer.start_fn ~= nil then
+ 		timer.start_fn()
+ 	end
     if timer.active then
       timer.elapsed += dt
       local elapsed = timer.elapsed
